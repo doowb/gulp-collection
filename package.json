@@ -1,6 +1,6 @@
 {
   "name": "gulp-collection",
-  "description": "Generate a collection of files from properties on data.",
+  "description": "Gulp plugin to group vinyl files into a collection and create new vinyl files using pagination and permalinks.",
   "version": "0.1.0",
   "homepage": "https://github.com/doowb/gulp-collection",
   "author": "Brian Woodward (https://github.com)",
@@ -32,5 +32,42 @@
     "index.js",
     "lib/",
     "utils.js"
-  ]
+  ],
+  "verb": {
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "related": {
+      "list": [
+        "group-array",
+        "paginationator",
+        "permalinks",
+        "placeholders"
+      ]
+    },
+    "reflinks": [
+      "gulp",
+      "verb",
+      "verb-readme-generator",
+      "gulp-gray-matter",
+      "handlebars",
+      "vinyl",
+      "verb-generate-readme"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-extname": "^0.2.2",
+    "gulp-format-md": "^0.1.9",
+    "gulp-gray-matter": "^3.0.1",
+    "handlebars": "^4.0.5"
+  }
 }
