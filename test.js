@@ -1,0 +1,146 @@
+'use strict';
+
+require('mocha');
+var File = require('vinyl');
+var assert = require('assert');
+var through = require('through2');
+var collection = require('./');
+
+describe('gulp-collection', function() {
+  it('should export a function', function() {
+    assert.equal(typeof collection, 'function');
+  });
+
+  it('should throw an error when invalid args are passed', function(cb) {
+    try {
+      collection();
+      cb(new Error('expected an error'));
+    } catch (err) {
+      assert(err);
+      assert.equal(err.message, 'expected "structure" to be a "string"');
+      cb();
+    }
+  });
+
+  it('should not create new files when source files are not in the collection', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag', {list: 'list', item: 'item'}))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 1);
+        assert.equal(files[0].path, 'one.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      stream.write(file);
+      stream.end();
+    });
+  });
+
+  it('should create new files when source files are the collection', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag.hbs', {
+        list: new File({path: 'list.hbs', contents: new Buffer('list')}),
+        item: new File({path: 'item.hbs', contents: new Buffer('item')})
+      }))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 3);
+        assert.equal(files[0].path, 'one.hbs');
+        assert.equal(files[1].path, 'tags.hbs');
+        assert.equal(files[2].path, 'tags/foo.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      file.data = {tags: ['foo']};
+      stream.write(file);
+      stream.end();
+    });
+  });
+
+  it('should create new files with the correct source files', function(cb) {
+    var stream = through.obj();
+    var fixtures = {
+      'tags.hbs': {
+        tags: {
+          foo: ['one.hbs', 'three.hbs'],
+          bar: ['one.hbs', 'two.hbs'],
+          baz: ['two.hbs', 'three.hbs']
+        }
+      },
+      'tags/foo.hbs': {
+        tag: 'foo',
+        items: ['one.hbs', 'three.hbs']
+      },
+      'tags/bar.hbs': {
+        tag: 'bar',
+        items: ['one.hbs', 'two.hbs']
+      },
+      'tags/baz.hbs': {
+        tag: 'baz',
+        items: ['two.hbs', 'three.hbs']
+      }
+    };
+
+    var files = [];
+    stream.pipe(collection(':tags/:tag.hbs', {
+        list: new File({path: 'list.hbs', contents: new Buffer('list')}),
+        item: new File({path: 'item.hbs', contents: new Buffer('item')})
+      }))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 7);
+        assert.equal(files[0].path, 'one.hbs');
+        assert.equal(files[1].path, 'two.hbs');
+        assert.equal(files[2].path, 'three.hbs');
+
+        files.forEach(function(file) {
+          var expected = fixtures[file.path];
+          if (!expected) return;
+          if (expected.tags) {
+            var tags = Object.keys(file.data.tags);
+            var actual = tags.reduce(function(acc, key) {
+              acc[key] = file.data.tags[key].map(function(item) { return item.path; });
+              return acc;
+            }, {});
+            assert.deepEqual(actual, expected.tags);
+          } else {
+            var actual = file.data.items.map(function(item) { return item.path; });
+            assert.equal(file.data.tag, expected.tag);
+            assert.deepEqual(actual, expected.items);
+          }
+        })
+        cb();
+      });
+
+    process.nextTick(function() {
+      var one = new File({path: 'one.hbs', contents: new Buffer('one')});
+      var two = new File({path: 'two.hbs', contents: new Buffer('two')});
+      var three = new File({path: 'three.hbs', contents: new Buffer('three')});
+
+      one.data = {tags: ['foo', 'bar']};
+      two.data = {tags: ['bar', 'baz']};
+      three.data = {tags: ['foo', 'baz']};
+
+      stream.write(one);
+      stream.write(two);
+      stream.write(three);
+      stream.end();
+    });
+  });
+});

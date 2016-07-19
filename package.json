@@ -34,7 +34,8 @@
     "gulp-extname": "^0.2.2",
     "gulp-format-md": "^0.1.9",
     "gulp-gray-matter": "^3.0.1",
-    "handlebars": "^4.0.5"
+    "handlebars": "^4.0.5",
+    "mocha": "^2.5.3"
   },
   "keywords": [
     "collection",
