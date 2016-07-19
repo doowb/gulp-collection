@@ -2,37 +2,29 @@
 
 var Vinyl = require('vinyl');
 var through = require('through2');
-var plugin = require('./');
+var collection = require('./');
 
-var list = new Vinyl({
-  path: 'list.hbs',
-  content: 'this is a list'
-});
-var item = new Vinyl({
-  path: 'item.hbs',
-  content: 'this is an item'
-});
-
+// files to use for creating list and item pages
+// these can be Vinyl files
+var list = {path: 'list.hbs', content: 'this is a list'};
+var item = {path: 'item.hbs', content: 'this is an item'};
 var stream = through.obj();
 
+// options to pass to the collection plugin
+var options = {
+  list: list,
+  item: item,
+  paginate: {limit: 5}
+};
+
+// stream that source files will be piped into
 stream
-  .pipe(through.obj(function(file, enc, next) {
-    // console.log(file.path);
-    // console.log(file.data);
-    next(null, file);
-  }))
-  .pipe(plugin(':tags/:tag/page/:idx/index.html', {
-    list: list,
-    item: item
-  }))
-  .pipe(plugin(':categories/:category/page/:idx/index.html', {
-    list: list,
-    item: item
-  }))
+  // use the collection plugin to create files for that tags found in the source files
+  .pipe(collection(':tags/:tag/page/:idx/index.html', options))
+  // use the collection plugin to create files for the categories found in the source files
+  .pipe(collection(':categories/:category/page/:idx/index.html', options))
   .on('data', function(file) {
     console.log(file.path);
-    console.log(file.data);
-    console.log();
   })
   .on('error', console.error)
   .on('end', function() {
@@ -40,44 +32,27 @@ stream
     process.exit();
   });
 
-var tags = ['foo', 'bar', 'baz', 'bang', 'beep', 'boop', 'bop'];
-var categories = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-var maxPages = 100;
+
+/**
+ * Below is code for creating a lot of random fake files.
+ * Change `maxFiles` to change how many files are created.
+ */
+
+var maxFiles = 500;
 var maxTags = 5;
 var maxCategories = 5;
+var tags = ['foo', 'bar', 'baz', 'bang', 'beep', 'boop', 'bop'];
+var categories = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
-function pickTag() {
-  return tags[Math.floor(Math.random() * (tags.length))];
-}
-
-function pickTags() {
-  var picked = [];
-  var max = Math.floor(Math.random() * maxTags);
-  while(picked.length < max) {
-    var tag = pickTag();
-    if (picked.indexOf(tag) === -1) {
-      picked.push(tag);
-    }
+// make fake files and write the to the stream to begin piping
+process.nextTick(function() {
+  for(var i = 0; i < maxFiles; i++) {
+    stream.write(makeFile(i));
   }
-  return picked;
-}
+  stream.end();
+});
 
-function pickCategory() {
-  return categories[Math.floor(Math.random() * (categories.length))];
-}
-
-function pickCategories() {
-  var picked = [];
-  var max = Math.floor(Math.random() * maxCategories);
-  while(picked.length < max) {
-    var category = pickCategory();
-    if (picked.indexOf(category) === -1) {
-      picked.push(category);
-    }
-  }
-  return picked;
-}
-
+// make a new file with randomly selected categories and tags
 function makeFile(idx) {
   var file = new Vinyl({
     path: `source-file-${idx}.hbs`,
@@ -90,9 +65,38 @@ function makeFile(idx) {
   return file;
 }
 
-process.nextTick(function() {
-  for(var i = 0; i < maxPages; i++) {
-    stream.write(makeFile(i));
+// pick a random tag from the possible tags in the tags array
+function pickTag() {
+  return tags[Math.floor(Math.random() * (tags.length))];
+}
+
+// pick random tags up to the `maxTags`
+function pickTags() {
+  var picked = [];
+  var max = Math.floor(Math.random() * maxTags);
+  while(picked.length < max) {
+    var tag = pickTag();
+    if (picked.indexOf(tag) === -1) {
+      picked.push(tag);
+    }
   }
-  stream.end();
-});
+  return picked;
+}
+
+// pick a random category from the possible categories in the categories array
+function pickCategory() {
+  return categories[Math.floor(Math.random() * (categories.length))];
+}
+
+// pick random categories up to the `maxCategories`
+function pickCategories() {
+  var picked = [];
+  var max = Math.floor(Math.random() * maxCategories);
+  while(picked.length < max) {
+    var category = pickCategory();
+    if (picked.indexOf(category) === -1) {
+      picked.push(category);
+    }
+  }
+  return picked;
+}
