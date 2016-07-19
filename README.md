@@ -1,4 +1,4 @@
-# gulp-collection [![NPM version](https://img.shields.io/npm/v/gulp-collection.svg?style=flat)](https://www.npmjs.com/package/gulp-collection) [![NPM downloads](https://img.shields.io/npm/dm/gulp-collection.svg?style=flat)](https://npmjs.org/package/gulp-collection)
+# gulp-collection [![NPM version](https://img.shields.io/npm/v/gulp-collection.svg?style=flat)](https://www.npmjs.com/package/gulp-collection) [![NPM downloads](https://img.shields.io/npm/dm/gulp-collection.svg?style=flat)](https://npmjs.org/package/gulp-collection) [![Build Status](https://img.shields.io/travis/doowb/gulp-collection.svg?style=flat)](https://travis-ci.org/doowb/gulp-collection)
 
 Gulp plugin to group vinyl files into a collection and create new vinyl files using pagination and permalinks.
 
