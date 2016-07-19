@@ -20,10 +20,17 @@
     "gulp"
   ],
   "dependencies": {
+    "extend-shallow": "^2.0.1",
     "group-array": "^0.3.1",
+    "lazy-cache": "^2.0.1",
     "paginationator": "^0.1.4",
     "placeholders": "^0.3.0",
     "through2": "^2.0.1",
     "vinyl": "^1.1.1"
-  }
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "utils.js"
+  ]
 }
