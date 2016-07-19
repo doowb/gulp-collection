@@ -2,7 +2,7 @@
 
 var Vinyl = require('vinyl');
 var through = require('through2');
-var collection = require('./');
+var collection = require('../');
 
 // files to use for creating list and item pages
 // these can be Vinyl files
