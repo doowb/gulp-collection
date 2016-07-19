@@ -1,16 +1,25 @@
 'use strict'
 
-var Vinyl = require('vinyl');
-var through = require('through2');
-var groupBy = require('group-array');
-var placeholders = require('placeholders');
-var paginationator = require('paginationator');
+var utils = require('./lib/utils');
 
 module.exports = function(structure, options) {
+  if (typeof structure === 'object') {
+    options = structure;
+    structure = '';
+  }
+  if (typeof structure !== 'string') {
+    throw new TypeError('expected "structure" to be a "string"');
+  }
+  options = options || {};
+
   var files = [];
-  var list = options.list;
-  var item = options.item;
+  var list = utils.normalizeView(options.list);
+  var item = utils.normalizeView(options.item);
   var prop, single;
+
+  /**
+   * TODO: move this logic someplace else and make it better.
+   */
 
   var segs = structure.split('/');
   var len = segs.length, i = 0;
@@ -27,43 +36,51 @@ module.exports = function(structure, options) {
     }
   }
   structure = segs.join('/');
-  var permalink = placeholders();
 
-  return through.obj(function(file, enc, next) {
+  return utils.through.obj(function(file, enc, next) {
     files.push(file);
     next(null, file);
   }, function(cb) {
-    var group = groupBy(files, `data.${prop}`);
+
+    // group cached files based on provided `prop` from the `structure`.
+    var group = utils.groupArray(files, `data.${prop}`);
+    //  {
+    //    A: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
+    //    B: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
+    //    C: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>]
+    //  }
+
+    // if there aren't any groups, just returned
     var keys = Object.keys(group);
     if (keys.length === 0) {
       return cb();
     }
 
-    var index = new Vinyl({
-      base: list.base,
-      path: prop + list.extname,
-      contents: list.contents
-    });
+    // create the main index file containing all the `groups`
+    var data = {};
+    data[prop] = prop;
+    var index = utils.createFile(list, list.structure || `:${prop}:extname`, data);
     index.data = {};
     index.data[prop] = group;
     this.push(index);
 
-    var stream = this;
-    keys.forEach(function(key) {
+    // For each key (group), create a page (or pages when paginating)
+    for(var i = 0; i < keys.length; i++) {
+      var key = keys[i];
       var items = group[key];
-      var paged = paginationator(items);
-      paged.pages.forEach(function(page) {
-        page[single] = key;
-        var view = new Vinyl({
-          base: item.base,
-          path: permalink(structure, page),
-          contents: item.contents
-        });
-        view.data = page;
-        stream.push(view);
-      });
+      var opts = {structure: structure, prop: single};
+      opts[single] = key;
 
-    });
+      if (options.paginate) {
+        opts.paginate = options.paginate;
+        utils.paginate(item, items, opts, this.push.bind(this));
+      } else {
+        var view = utils.createFile(item, structure, opts);
+        view.data = {items: items};
+        view.data[single] = key;
+        this.push(view);
+      }
+    };
     cb();
   });
 }
