@@ -48,7 +48,7 @@ gulp.task('default', function() {
 
 ## Examples
 
-**gulpfile.js**
+_**gulpfile.js**_
 
 The [gulpfile.js example](./examples/gulpfile.js) shows a simple use case using [gulp-gray-matter](https://github.com/simbo/gulp-gray-matter).
 
@@ -59,7 +59,7 @@ $ cd examples
 $ gulp
 ```
 
-**advanced.js**
+_**advanced.js**_
 
 The [advanced example](./examples/advanced.js) shows using gulp to read in files, [gulp-gray-matter](https://github.com/simbo/gulp-gray-matter) to parse the front-matter and [Handlebars](http://www.handlebarsjs.com/) to render the templates into html files. This example also shows the use of pagination to create multiple pages from a long list of items.
 
@@ -70,7 +70,7 @@ $ cd examples
 $ gulp --gulpfile advanced.js
 ```
 
-**example.js**
+_**example.js**_
 
 The [example.js example file](./examples/example.js) creates a lot of [Vinyl](http://github.com/gulpjs/vinyl) files dynamically and randomly gives them categories and tags. The example streams the dynamically created files through the collection plugin to show how pagination works with a lot of files. This example does not do any file I/O and is run with node directly.
 
