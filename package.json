@@ -9,16 +9,17 @@
     "url": "https://github.com/doowb/gulp-collection/issues"
   },
   "license": "MIT",
+  "files": [
+    "index.js",
+    "lib"
+  ],
+  "main": "index.js",
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [
-    "collection",
-    "gulp"
-  ],
   "dependencies": {
     "extend-shallow": "^2.0.1",
     "group-array": "^0.3.1",
@@ -28,10 +29,16 @@
     "through2": "^2.0.1",
     "vinyl": "^1.1.1"
   },
-  "files": [
-    "index.js",
-    "lib/",
-    "utils.js"
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-extname": "^0.2.2",
+    "gulp-format-md": "^0.1.9",
+    "gulp-gray-matter": "^3.0.1",
+    "handlebars": "^4.0.5"
+  },
+  "keywords": [
+    "collection",
+    "gulp"
   ],
   "verb": {
     "toc": false,
@@ -52,22 +59,15 @@
     },
     "reflinks": [
       "gulp",
-      "verb",
-      "verb-readme-generator",
       "gulp-gray-matter",
       "handlebars",
-      "vinyl",
-      "verb-generate-readme"
+      "verb",
+      "verb-generate-readme",
+      "verb-readme-generator",
+      "vinyl"
     ],
     "lint": {
       "reflinks": true
     }
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-extname": "^0.2.2",
-    "gulp-format-md": "^0.1.9",
-    "gulp-gray-matter": "^3.0.1",
-    "handlebars": "^4.0.5"
   }
 }
