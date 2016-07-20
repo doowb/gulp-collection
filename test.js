@@ -22,6 +22,27 @@ describe('gulp-collection', function() {
     }
   });
 
+  it('should not create new files when `list` and `item` are undefined', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag'))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 1);
+        assert.equal(files[0].path, 'one.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      stream.write(file);
+      stream.end();
+    });
+  });
+
   it('should not create new files when source files are not in the collection', function(cb) {
     var stream = through.obj();
     var files = [];
@@ -59,6 +80,84 @@ describe('gulp-collection', function() {
         assert.equal(files[0].path, 'one.hbs');
         assert.equal(files[1].path, 'tags.hbs');
         assert.equal(files[2].path, 'tags/foo.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      file.data = {tags: ['foo']};
+      stream.write(file);
+      stream.end();
+    });
+  });
+
+  it('should only create a new list file when only `list` is defined', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag.hbs', {
+        list: new File({path: 'list.hbs', contents: new Buffer('list')})
+      }))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 2);
+        assert.equal(files[0].path, 'one.hbs');
+        assert.equal(files[1].path, 'tags.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      file.data = {tags: ['foo']};
+      stream.write(file);
+      stream.end();
+    });
+  });
+
+  it('should only create a new item file when only `item` is defined', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag.hbs', {
+        item: new File({path: 'item.hbs', contents: new Buffer('item')})
+      }))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 2);
+        assert.equal(files[0].path, 'one.hbs');
+        assert.equal(files[1].path, 'tags/foo.hbs');
+        cb();
+      });
+
+    process.nextTick(function() {
+      var file = new File({path: 'one.hbs', contents: new Buffer('')});
+      file.data = {tags: ['foo']};
+      stream.write(file);
+      stream.end();
+    });
+  });
+
+  it('should pass `group` to `onGroup` function', function(cb) {
+    var stream = through.obj();
+    var files = [];
+    stream.pipe(collection(':tags/:tag.hbs', {
+        onGroup: function(group) {
+          assert(typeof group === 'object');
+          assert.deepEqual(Object.keys(group), ['foo']);
+          assert.equal(group.foo[0].path, 'one.hbs');
+        }
+      }))
+      .on('data', function(file) {
+        files.push(file);
+      })
+      .once('error', cb)
+      .on('end', function() {
+        assert.equal(files.length, 1);
+        assert.equal(files[0].path, 'one.hbs');
         cb();
       });
 
