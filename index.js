@@ -15,6 +15,7 @@ module.exports = function(structure, options) {
   var files = [];
   var list = utils.normalizeView(options.list);
   var item = utils.normalizeView(options.item);
+  var onGroup = options.onGroup || utils.noop;
   var prop, single;
 
   /**
@@ -49,6 +50,7 @@ module.exports = function(structure, options) {
     //    B: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
     //    C: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>]
     //  }
+    onGroup(group);
 
     // if there aren't any groups, just returned
     var keys = Object.keys(group);
@@ -57,30 +59,34 @@ module.exports = function(structure, options) {
     }
 
     // create the main index file containing all the `groups`
-    var data = {};
-    data[prop] = prop;
-    var index = utils.createFile(list, list.structure || `:${prop}:extname`, data);
-    index.data = {};
-    index.data[prop] = group;
-    this.push(index);
+    if (list) {
+      var data = {};
+      data[prop] = prop;
+      var index = utils.createFile(list, list.structure || `:${prop}:extname`, data);
+      index.data = {};
+      index.data[prop] = group;
+      this.push(index);
+    }
 
-    // For each key (group), create a page (or pages when paginating)
-    for(var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var items = group[key];
-      var opts = {structure: structure, prop: single};
-      opts[single] = key;
+    // for each key (group), create a page (or pages when paginating)
+    if (item) {
+      for(var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var items = group[key];
+        var opts = {structure: structure, prop: single};
+        opts[single] = key;
 
-      if (options.paginate) {
-        opts.paginate = options.paginate;
-        utils.paginate(item, items, opts, this.push.bind(this));
-      } else {
-        var view = utils.createFile(item, structure, opts);
-        view.data = {items: items};
-        view.data[single] = key;
-        this.push(view);
+        if (options.paginate) {
+          opts.paginate = options.paginate;
+          utils.paginate(item, items, opts, this.push.bind(this));
+        } else {
+          var view = utils.createFile(item, structure, opts);
+          view.data = {items: items};
+          view.data[single] = key;
+          this.push(view);
+        }
       }
-    };
+    }
     cb();
   });
-}
+};
