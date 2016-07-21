@@ -15,7 +15,7 @@ module.exports = function(structure, options) {
   var files = [];
   var list = utils.normalizeFile(options.list);
   var item = utils.normalizeFile(options.item);
-  var onGroup = options.onGroup || utils.noop;
+  var groupFn = options.groupFn || utils.noop;
   var prop, single;
 
   /**
@@ -50,7 +50,7 @@ module.exports = function(structure, options) {
     //    B: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
     //    C: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>]
     //  }
-    onGroup(group);
+    groupFn(group);
 
     // if there aren't any groups, just returned
     var keys = Object.keys(group);

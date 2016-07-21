@@ -141,11 +141,11 @@ describe('gulp-collection', function() {
     });
   });
 
-  it('should pass `group` to `onGroup` function', function(cb) {
+  it('should pass `group` to `groupFn` function', function(cb) {
     var stream = through.obj();
     var files = [];
     stream.pipe(collection(':tags/:tag.hbs', {
-        onGroup: function(group) {
+        groupFn: function(group) {
           assert(typeof group === 'object');
           assert.deepEqual(Object.keys(group), ['foo']);
           assert.equal(group.foo[0].path, 'one.hbs');
