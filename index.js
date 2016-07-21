@@ -13,8 +13,8 @@ module.exports = function(structure, options) {
   options = options || {};
 
   var files = [];
-  var list = utils.normalizeView(options.list);
-  var item = utils.normalizeView(options.item);
+  var list = utils.normalizeFile(options.list);
+  var item = utils.normalizeFile(options.item);
   var onGroup = options.onGroup || utils.noop;
   var prop, single;
 
@@ -80,10 +80,10 @@ module.exports = function(structure, options) {
           opts.paginate = options.paginate;
           utils.paginate(item, items, opts, this.push.bind(this));
         } else {
-          var view = utils.createFile(item, structure, opts);
-          view.data = {items: items};
-          view.data[single] = key;
-          this.push(view);
+          var file = utils.createFile(item, structure, opts);
+          file.data = {items: items};
+          file.data[single] = key;
+          this.push(file);
         }
       }
     }
