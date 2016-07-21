@@ -1,0 +1,10 @@
+<div>Tags</div>
+{{!log @root.site}}
+{{#each @root.site.tags as |items tag|}}
+  <span>{{tag}}</span>
+  <ul>
+    {{#each items as |item|}}
+      <li>{{item.data.title}}: {{item.relative}}</li>
+    {{/each}}
+  </ul>
+{{/each}}
