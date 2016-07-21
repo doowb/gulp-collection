@@ -9,6 +9,7 @@
  */
 
 var matter = require('gulp-gray-matter');
+var extend = require('extend-shallow');
 var handlebars = require('handlebars');
 var extname = require('gulp-extname');
 var through = require('through2');
@@ -23,6 +24,9 @@ gulp.task('default', function() {
   // load templates from the file system.
   var listFile = loadTemplate('list.hbs');
   var itemFile = loadTemplate('item.hbs');
+  var sidebar = loadTemplate('side-bar.hbs');
+  handlebars.registerPartial('side-bar', sidebar.contents.toString());
+  var context = {};
 
   return gulp.src('*.hbs', {cwd: path.join(__dirname, 'src')})
     // parse front-matter to add it to the `.data` property on the files coming through the stream.
@@ -32,18 +36,25 @@ gulp.task('default', function() {
     .pipe(collection(':tags/:tag/page/:idx/index.hbs', {
       list: listFile,
       item: itemFile,
-      paginate: {limit: 3}
+      paginate: {limit: 3},
+      groupFn: function(group) {
+        context.site = {
+          tags: group
+        };
+      }
     }))
+    // rename `.hbs` to `.html`
+    .pipe(extname())
+    // buffer files before rendering to ensure context has been created
+    .pipe(buffer())
     // use Handlebars to render the file contents coming through using the `.data` property on each file as the template context
     .pipe(through.obj(function(file, enc, next) {
+      var data = extend({}, context, file.data);
       var str = file.contents.toString();
-      var data = file.data || {};
       var tmpl = handlebars.compile(str);
       file.contents = new Buffer(tmpl(data));
       next(null, file);
     }))
-    // rename `.hbs` to `.html`
-    .pipe(extname())
     // write rendered files to the destination directory
     .pipe(gulp.dest(dest));
 });
@@ -52,5 +63,19 @@ function loadTemplate(name) {
   return new File({
     path: name,
     contents: fs.readFileSync(path.join(__dirname, 'src/templates', name))
+  });
+}
+
+function buffer() {
+  var files = [];
+  return through.obj(function(file, enc, next) {
+    files.push(file);
+    next(null);
+  }, function(cb) {
+    var stream = this;
+    files.forEach(function(file) {
+      stream.push(file);
+    });
+    cb();
   });
 }
