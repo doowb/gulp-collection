@@ -1,6 +1,6 @@
 <h1>Tags</h1>
-{{#each tags as |items key|}}
-  <h2>{{key}}</h2>
+{{#each tags as |items tag|}}
+  <h2>{{tag}}</h2>
   <ul>
     {{#each items as |item|}}
       <li>{{item.data.title}}: {{item.relative}}</li>
