@@ -27,6 +27,7 @@
     "lazy-cache": "^2.0.1",
     "paginationator": "^0.1.4",
     "placeholders": "^0.3.0",
+    "plugin-error": "^0.1.2",
     "through2": "^2.0.1",
     "vinyl": "^1.1.1"
   },
@@ -39,8 +40,24 @@
     "mocha": "^2.5.3"
   },
   "keywords": [
+    "array",
+    "by",
     "collection",
-    "gulp"
+    "group",
+    "group-array",
+    "group-by",
+    "groupby",
+    "gulp",
+    "gulp-plugin",
+    "gulpplugin",
+    "page",
+    "pager",
+    "paginate",
+    "pagination",
+    "paginationator",
+    "paging",
+    "plugin",
+    "vinyl"
   ],
   "verb": {
     "toc": false,

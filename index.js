@@ -7,10 +7,11 @@ module.exports = function(structure, options) {
     options = structure;
     structure = '';
   }
-  if (typeof structure !== 'string') {
-    throw new TypeError('expected "structure" to be a "string"');
-  }
   options = options || {};
+
+  if (typeof structure !== 'string') {
+    throw new utils.PluginError('gulp-collection', 'expected "structure" to be a "string"', options);
+  }
 
   var files = [];
   var list = utils.normalizeFile(options.list);
@@ -23,51 +24,54 @@ module.exports = function(structure, options) {
     files.push(file);
     next(null, file);
   }, function(cb) {
+    try {
+      // group cached files based on provided `prop` from the `structure`.
+      var group = utils.groupArray(files, `data.${prop}`);
+      //  {
+      //    A: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
+      //    B: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
+      //    C: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>]
+      //  }
+      groupFn(group);
 
-    // group cached files based on provided `prop` from the `structure`.
-    var group = utils.groupArray(files, `data.${prop}`);
-    //  {
-    //    A: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
-    //    B: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>],
-    //    C: [<File foo.hbs>, <File bar.hbs>, <File baz.hbs>]
-    //  }
-    groupFn(group);
+      // if there aren't any groups, just returned
+      var keys = Object.keys(group);
+      if (keys.length === 0) {
+        return cb();
+      }
 
-    // if there aren't any groups, just returned
-    var keys = Object.keys(group);
-    if (keys.length === 0) {
-      return cb();
-    }
+      // create the main index file containing all the `groups`
+      if (list) {
+        var data = {};
+        data[prop] = prop;
+        var index = utils.createFile(list, list.structure || `:${prop}:extname`, data);
+        index.data = {};
+        index.data[prop] = group;
+        this.push(index);
+      }
 
-    // create the main index file containing all the `groups`
-    if (list) {
-      var data = {};
-      data[prop] = prop;
-      var index = utils.createFile(list, list.structure || `:${prop}:extname`, data);
-      index.data = {};
-      index.data[prop] = group;
-      this.push(index);
-    }
+      // for each key (group), create a page (or pages when paginating)
+      if (item) {
+        for(var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var items = group[key];
+          var opts = {structure: structure, prop: single};
+          opts[prop] = prop;
+          opts[single] = key;
 
-    // for each key (group), create a page (or pages when paginating)
-    if (item) {
-      for(var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var items = group[key];
-        var opts = {structure: structure, prop: single};
-        opts[prop] = prop;
-        opts[single] = key;
-
-        if (options.paginate) {
-          opts.paginate = options.paginate;
-          utils.paginate(item, items, opts, this.push.bind(this));
-        } else {
-          var file = utils.createFile(item, structure, opts);
-          file.data = {items: items};
-          file.data[single] = key;
-          this.push(file);
+          if (options.paginate) {
+            opts.paginate = options.paginate;
+            utils.paginate(item, items, opts, this.push.bind(this));
+          } else {
+            var file = utils.createFile(item, structure, opts);
+            file.data = {items: items};
+            file.data[single] = key;
+            this.push(file);
+          }
         }
       }
+    } catch (err) {
+      this.emit('error', new utils.PluginError('gulp-collection', err, options));
     }
     cb();
   });
