@@ -16,27 +16,8 @@ module.exports = function(structure, options) {
   var list = utils.normalizeFile(options.list);
   var item = utils.normalizeFile(options.item);
   var groupFn = options.groupFn || utils.noop;
-  var prop, single;
-
-  /**
-   * TODO: move this logic someplace else and make it better.
-   */
-
-  var segs = structure.split('/');
-  var len = segs.length, i = 0;
-  while(len--) {
-    var seg = segs[i++];
-    if (typeof prop === 'undefined' && seg.indexOf(':') === 0) {
-      prop = seg.slice(1);
-      segs[i - 1] = prop;
-      continue;
-    }
-    if (typeof single === 'undefined' && typeof prop === 'string' && seg.indexOf(':') === 0) {
-      single = seg.slice(1).split('.')[0];
-      break;
-    }
-  }
-  structure = segs.join('/');
+  var prop = utils.getProp(structure);
+  var single = utils.single(prop);
 
   return utils.through.obj(function(file, enc, next) {
     files.push(file);
@@ -74,6 +55,7 @@ module.exports = function(structure, options) {
         var key = keys[i];
         var items = group[key];
         var opts = {structure: structure, prop: single};
+        opts[prop] = prop;
         opts[single] = key;
 
         if (options.paginate) {
