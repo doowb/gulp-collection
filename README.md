@@ -87,25 +87,80 @@ An initial `list` file will be created with a data object containing a property 
 For each item on the group object, an `item` file will be created with a data object containing a property matching the second `:prop` property in the permalink pattern and an `items` property with array of files that are in that group:
 
 ```js
-// <File tags/foo.hbs
+// <File tags/foo.hbs>
 {
   data: {
     tag: 'foo',
     items: [<File one.hbs>, <File two.hbs>]
   }
 }
-// <File tags/bar.hbs
+// <File tags/bar.hbs>
 {
   data: {
     tag: 'bar',
     items: [<File one.hbs>, <File three.hbs>]
   }
 }
-// <File tags/baz.hbs
+// <File tags/baz.hbs>
 {
   data: {
     tag: 'baz',
     items: [<File two.hbs>, <File three.hbs>]
+  }
+}
+```
+
+Item files may be paginated using [paginationator](https://github.com/doowb/paginationator) by specifying a `paginate` property on the options:
+
+```js
+var gulp = require('gulp');
+var matter = require('gulp-gray-matter');
+var collection = require('gulp-collection');
+
+gulp.task('default', function() {
+  return gulp.src('*.hbs')
+    .pipe(matter())
+    .pipe(collection(':tags/:tag/page/:pager.idx/index.html', {
+      paginate: {limit: 3}
+    }))
+    .pipe(gulp.dest('dist/'));
+});
+```
+
+When the `paginate` option is specified, an `item` file will be created for each page of items contained in that item group. Also, `pager` property will be available for use in the permalink structure. The example above shows using `pager.idx` to make permalinks that will look something like:
+
+```js
+// "foo" tag pages
+<File tags/foo/page/0/index.html>
+<File tags/foo/page/1/index.html>
+<File tags/foo/page/2/index.html>
+
+// "bar" tag pages
+<File tags/bar/page/0/index.html>
+<File tags/bar/page/1/index.html>
+<File tags/bar/page/2/index.html>
+
+// "baz" tag pages
+<File tags/baz/page/0/index.html>
+<File tags/baz/page/1/index.html>
+<File tags/baz/page/2/index.html>
+```
+
+The `data` property on each page will contain information about that page and the items on that page.
+
+```js
+// <File tags/foo/page/1/index.html>
+{
+  data: {
+    tag: 'foo',
+    idx: 1, // actual array index of page
+    total: 3, // total pages for tag "foo"
+    current: 2, // current page number (idx + 1)
+    items: [<File three.hbs>, <File four.hbs>] // items on this page
+    first: 1, // first page number
+    last: 3, // last page number
+    prev: 1, // previous page number (current - 1)
+    next: 3 // next page number (current + 1)
   }
 }
 ```
