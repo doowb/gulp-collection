@@ -20,9 +20,9 @@ var options = {
 // stream that source files will be piped into
 stream
   // use the collection plugin to create files for that tags found in the source files
-  .pipe(collection(':tags/:tag/page/:idx/index.html', options))
+  .pipe(collection(':tags/:tag/page/:pager.idx/index.html', options))
   // use the collection plugin to create files for the categories found in the source files
-  .pipe(collection(':categories/:category/page/:idx/index.html', options))
+  .pipe(collection(':categories/:category/page/:pager.idx/index.html', options))
   .on('data', function(file) {
     console.log(file.path);
   })

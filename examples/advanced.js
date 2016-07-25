@@ -33,7 +33,7 @@ gulp.task('default', function() {
     .pipe(matter())
     // collection tags from the `.data` property
     // use pagination and build urls with indexes
-    .pipe(collection(':tags/:tag/page/:idx/index.hbs', {
+    .pipe(collection(':tags/:tag/page/:pager.idx/index.hbs', {
       list: listFile,
       item: itemFile,
       paginate: {limit: 3},

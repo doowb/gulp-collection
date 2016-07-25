@@ -23,6 +23,7 @@
   "dependencies": {
     "extend-shallow": "^2.0.1",
     "group-array": "^0.3.1",
+    "inflection": "^1.10.0",
     "lazy-cache": "^2.0.1",
     "paginationator": "^0.1.4",
     "placeholders": "^0.3.0",
