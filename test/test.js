@@ -4,7 +4,7 @@ require('mocha');
 var File = require('vinyl');
 var assert = require('assert');
 var through = require('through2');
-var collection = require('./');
+var collection = require('../');
 
 describe('gulp-collection', function() {
   it('should export a function', function() {
