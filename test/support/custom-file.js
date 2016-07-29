@@ -1,7 +1,5 @@
 'use strict';
-
-var util = require('util');
-var File = require('vinyl');
+var File = require('vinyl-item');
 
 function Custom(opts) {
   if (!(this instanceof Custom)) {
@@ -10,6 +8,7 @@ function Custom(opts) {
   File.call(this, opts);
   this.isCustom = true;
 }
-util.inherits(Custom, File);
+
+File.extend(Custom);
 
 module.exports = Custom;
