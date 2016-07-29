@@ -85,7 +85,9 @@
       "verb",
       "verb-generate-readme",
       "verb-readme-generator",
-      "vinyl"
+      "vinyl",
+      "paginationator",
+      "view-item"
     ],
     "lint": {
       "reflinks": true
