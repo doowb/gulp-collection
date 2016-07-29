@@ -5,6 +5,7 @@ var path = require('path');
 var File = require('vinyl');
 var assert = require('assert');
 var utils = require('../lib/utils');
+var Custom = require('./support/custom-file');
 
 describe('utils', function() {
   describe('normalizeFile', function() {
@@ -75,6 +76,22 @@ describe('utils', function() {
       var actual = utils.createFile(listFile, ':tag/index:extname', {tag: 'foo', extname: '.html'});
       assert.deepEqual(actual, expected);
     });
+
+    it('should create a new instance of File from a list file with a specified permalink, data object, and custom File', function() {
+      var listFile = new File({
+        path: 'list.txt',
+        contents: new Buffer('this is a list file')
+      });
+
+      var expected = new Custom({
+        path: 'foo/index.html',
+        contents: new Buffer('this is a list file')
+      });
+
+      var actual = utils.createFile(listFile, ':tag/index:extname', {tag: 'foo', extname: '.html'}, Custom);
+      assert.deepEqual(actual, expected);
+      assert(actual.isCustom);
+    });
   });
 
   describe('createFiles', function() {
@@ -137,6 +154,45 @@ describe('utils', function() {
         }
       });
     });
+
+    it('should create files for each page in the pages array using a Custom File', function() {
+      var itemFile = new File({
+        path: 'item.txt',
+        contents: new Buffer('this is an item file')
+      });
+      var items = [
+        {path: 'one.hbs'},
+        {path: 'two.hbs'},
+        {path: 'three.hbs'},
+        {path: 'four.hbs'},
+        {path: 'five.hbs'}
+      ];
+      var paged = utils.paginationator(items, {limit: 2});
+      var structure = 'tags/:tag/page/:pager.idx/index.html';
+      var files = [];
+      utils.createFiles(itemFile, paged.pages, {structure: structure, prop: 'tag', tag: 'foo'}, files.push.bind(files), Custom);
+      assert.equal(files.length, 3);
+      files.forEach(function(file, i) {
+        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.data.idx, i);
+        assert(file.isCustom);
+
+        switch(i) {
+          case 0:
+            assert.equal(file.data.items.length, 2);
+            assert.deepEqual(file.data.items, items.slice(0, 2));
+            break;
+          case 1:
+            assert.equal(file.data.items.length, 2);
+            assert.deepEqual(file.data.items, items.slice(2, 4));
+            break;
+          case 2:
+            assert.equal(file.data.items.length, 1);
+            assert.deepEqual(file.data.items, items.slice(4));
+            break;
+        }
+      });
+    });
   });
 
   describe('paginate', function() {
@@ -177,6 +233,51 @@ describe('utils', function() {
       files.forEach(function(file, i) {
         assert.equal(file.path, `tags/foo/page/${i}/index.html`);
         assert.equal(file.data.idx, i);
+
+        switch(i) {
+          case 0:
+            assert.equal(file.data.items.length, 2);
+            assert.deepEqual(file.data.items, items.slice(0, 2));
+            break;
+          case 1:
+            assert.equal(file.data.items.length, 2);
+            assert.deepEqual(file.data.items, items.slice(2, 4));
+            break;
+          case 2:
+            assert.equal(file.data.items.length, 1);
+            assert.deepEqual(file.data.items, items.slice(4));
+            break;
+        }
+      });
+    });
+
+    it('should create paginate items and create custom files for each page', function() {
+      var itemFile = new File({
+        path: 'item.txt',
+        contents: new Buffer('this is an item file')
+      });
+      var items = [
+        {path: 'one.hbs'},
+        {path: 'two.hbs'},
+        {path: 'three.hbs'},
+        {path: 'four.hbs'},
+        {path: 'five.hbs'}
+      ];
+      var structure = 'tags/:tag/page/:pager.idx/index.html';
+      var files = [];
+      var opts = {
+        structure: structure,
+        prop: 'tag',
+        tag: 'foo',
+        paginate: {limit: 2}
+      };
+
+      utils.paginate(itemFile, items, opts, files.push.bind(files), Custom);
+      assert.equal(files.length, 3);
+      files.forEach(function(file, i) {
+        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.data.idx, i);
+        assert(file.isCustom);
 
         switch(i) {
           case 0:
