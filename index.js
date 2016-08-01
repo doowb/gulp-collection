@@ -20,18 +20,11 @@ module.exports = function(group, options) {
       cb(null, file);
     }
   }, function(cb) {
-    var files = [];
-    function onFile(file) {
-      files.push(file);
-    }
-
-    collection.on('file', onFile);
+    var stream = this;
+    collection.on('file', function(file) {
+      stream.push(file);
+    });
     collection.addGroup(group, options);
-    collection.off('file', onFile);
-
-    files.forEach(function(file) {
-      this.push(file);
-    }, this);
     cb();
   });
 };
