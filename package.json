@@ -30,13 +30,15 @@
     "plugin-error": "^0.1.2",
     "src-stream": "^0.1.1",
     "through2": "^2.0.1",
-    "vinyl": "^1.2.0"
+    "vinyl": "^1.2.0",
+    "vinyl-collection": "^0.1.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-extname": "^0.2.2",
     "gulp-format-md": "^0.1.9",
     "gulp-gray-matter": "^3.0.1",
+    "gulp-group-array": "^0.1.1",
     "handlebars": "^4.0.5",
     "mocha": "^2.5.3",
     "vinyl-item": "^0.1.0"

@@ -1,32 +1,34 @@
 'use strict'
 
 var utils = require('./lib/utils');
-var vgroup = require('./lib/vinyl-group');
-var vcollection = require('./lib/vinyl-collection');
+var addGroup = require('./lib/add-group');
 
-module.exports = function(structure, options) {
-  if (typeof structure === 'object') {
-    options = structure;
-    structure = '';
+module.exports = function(group, options) {
+  if (arguments.length === 1) {
+    options = group;
+    group = null;
   }
   options = options || {};
+  var collection = new utils.Collection(options);
+  collection.use(addGroup(options));
 
-  if (typeof structure !== 'string') {
-    throw new utils.PluginError('gulp-collection', 'expected "structure" to be a "string"', options);
-  }
-
-  var files = [];
-  var prop = utils.getProp(structure);
   return utils.through.obj(function(file, enc, cb) {
-    files.push(file);
-    cb(null, file);
+    if (file.isVinylGroup) {
+      group = group || file.group;
+      cb();
+    } else {
+      cb(null, file);
+    }
   }, function(cb) {
-    var group = vgroup.groupBy(files, `data.${prop}`);
-    if (typeof options.groupFn === 'function') {
-      options.groupFn(group);
+    var files = [];
+    function onFile(file) {
+      files.push(file);
     }
 
-    files = vcollection.createFiles(group, structure, options);
+    collection.on('file', onFile);
+    collection.addGroup(group, options);
+    collection.off('file', onFile);
+
     files.forEach(function(file) {
       this.push(file);
     }, this);
