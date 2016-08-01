@@ -5,6 +5,7 @@ var File = require('vinyl');
 var assert = require('assert');
 var through = require('through2');
 var collection = require('../');
+var groupBy = require('gulp-group-array');
 var Custom = require('./support/custom-file');
 
 describe('gulp-collection', function() {
@@ -12,21 +13,10 @@ describe('gulp-collection', function() {
     assert.equal(typeof collection, 'function');
   });
 
-  it('should throw an error when invalid args are passed', function(cb) {
-    try {
-      collection();
-      cb(new Error('expected an error'));
-    } catch (err) {
-      assert(err);
-      assert.equal(err.message, 'expected "structure" to be a "string"');
-      cb();
-    }
-  });
-
   it('should not create new files when `list` and `item` are undefined', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag'))
+    stream.pipe(collection())
       .on('data', function(file) {
         files.push(file);
       })
@@ -47,7 +37,7 @@ describe('gulp-collection', function() {
   it('should not create new files when source files are not in the collection', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag', {list: 'list', item: 'item'}))
+    stream.pipe(collection({list: 'list', item: 'item', structure: ':tags/:tag'}))
       .on('data', function(file) {
         files.push(file);
       })
@@ -68,7 +58,10 @@ describe('gulp-collection', function() {
   it('should create new files when source files are the collection', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {groupFile: true}))
+      .pipe(collection({
+        structure: ':tags/:tag.hbs',
         list: new File({path: 'list.hbs', contents: new Buffer('list')}),
         item: new File({path: 'item.hbs', contents: new Buffer('item')})
       }))
@@ -95,7 +88,10 @@ describe('gulp-collection', function() {
   it('should only create a new list file when only `list` is defined', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {groupFile: true}))
+      .pipe(collection({
+        structure: ':tags/:tag.hbs',
         list: new File({path: 'list.hbs', contents: new Buffer('list')})
       }))
       .on('data', function(file) {
@@ -120,7 +116,10 @@ describe('gulp-collection', function() {
   it('should only create a new item file when only `item` is defined', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {groupFile: true}))
+      .pipe(collection({
+        structure: ':tags/:tag.hbs',
         item: new File({path: 'item.hbs', contents: new Buffer('item')})
       }))
       .on('data', function(file) {
@@ -145,13 +144,16 @@ describe('gulp-collection', function() {
   it('should pass `group` to `groupFn` function', function(cb) {
     var stream = through.obj();
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {
+        groupFile: true,
         groupFn: function(group) {
           assert(typeof group === 'object');
           assert.deepEqual(Object.keys(group), ['foo']);
           assert.equal(group.foo[0].path, 'one.hbs');
         }
       }))
+      .pipe(collection({structure: ':tags/:tag.hbs'}))
       .on('data', function(file) {
         files.push(file);
       })
@@ -195,7 +197,10 @@ describe('gulp-collection', function() {
     };
 
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {groupFile: true}))
+      .pipe(collection({
+        structure: ':tags/:tag.hbs',
         list: new File({path: 'list.hbs', contents: new Buffer('list')}),
         item: new File({path: 'item.hbs', contents: new Buffer('item')})
       }))
@@ -269,8 +274,11 @@ describe('gulp-collection', function() {
     };
 
     var files = [];
-    stream.pipe(collection(':tags/:tag.hbs', {
+    stream
+      .pipe(groupBy('data.tags', {groupFile: true}))
+      .pipe(collection({
         File: Custom,
+        structure: ':tags/:tag.hbs',
         list: new Custom({path: 'list.hbs', contents: new Buffer('list')}),
         item: new Custom({path: 'item.hbs', contents: new Buffer('item')})
       }))
