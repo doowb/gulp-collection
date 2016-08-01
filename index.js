@@ -4,7 +4,7 @@ var utils = require('./lib/utils');
 var addGroup = require('./lib/add-group');
 
 module.exports = function(group, options) {
-  if (arguments.length === 1) {
+  if (arguments.length <= 1) {
     options = group;
     group = null;
   }
