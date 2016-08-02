@@ -39,7 +39,7 @@ describe('utils', function() {
       });
 
       var expected = new File({
-        path: 'list.txt',
+        path: path.resolve('list.txt'),
         contents: new Buffer('this is a list file')
       });
 
@@ -54,7 +54,7 @@ describe('utils', function() {
       });
 
       var expected = new File({
-        path: 'foo/index.html',
+        path: path.resolve('foo/index.html'),
         contents: new Buffer('this is a list file')
       });
 
@@ -69,7 +69,7 @@ describe('utils', function() {
       });
 
       var expected = new File({
-        path: 'foo/index.html',
+        path: path.resolve('foo/index.html'),
         contents: new Buffer('this is a list file')
       });
 
@@ -84,7 +84,7 @@ describe('utils', function() {
       });
 
       var expected = new Custom({
-        path: 'foo/index.html',
+        path: path.resolve('foo/index.html'),
         contents: new Buffer('this is a list file')
       });
 
@@ -135,7 +135,7 @@ describe('utils', function() {
       utils.createFiles(itemFile, paged.pages, {structure: structure, prop: 'tag', tag: 'foo'}, files.push.bind(files));
       assert.equal(files.length, 3);
       files.forEach(function(file, i) {
-        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.path, path.resolve(`tags/foo/page/${i}/index.html`));
         assert.equal(file.data.idx, i);
 
         switch(i) {
@@ -173,7 +173,7 @@ describe('utils', function() {
       utils.createFiles(itemFile, paged.pages, {structure: structure, prop: 'tag', tag: 'foo'}, files.push.bind(files), Custom);
       assert.equal(files.length, 3);
       files.forEach(function(file, i) {
-        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.path, path.resolve(`tags/foo/page/${i}/index.html`));
         assert.equal(file.data.idx, i);
         assert(file.isCustom);
 
@@ -231,7 +231,7 @@ describe('utils', function() {
       utils.paginate(itemFile, items, opts, files.push.bind(files));
       assert.equal(files.length, 3);
       files.forEach(function(file, i) {
-        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.path, path.resolve(`tags/foo/page/${i}/index.html`));
         assert.equal(file.data.idx, i);
 
         switch(i) {
@@ -275,7 +275,7 @@ describe('utils', function() {
       utils.paginate(itemFile, items, opts, files.push.bind(files), Custom);
       assert.equal(files.length, 3);
       files.forEach(function(file, i) {
-        assert.equal(file.path, `tags/foo/page/${i}/index.html`);
+        assert.equal(file.path, path.resolve(`tags/foo/page/${i}/index.html`));
         assert.equal(file.data.idx, i);
         assert(file.isCustom);
 

@@ -1,6 +1,7 @@
 'use strict';
 
 require('mocha');
+var path = require('path');
 var File = require('vinyl');
 var assert = require('assert');
 var through = require('through2');
@@ -79,8 +80,8 @@ describe('gulp-collection', function() {
       .on('end', function() {
         assert.equal(files.length, 3);
         assert.equal(files[0].path, 'one.hbs');
-        assert.equal(files[1].path, 'tags.hbs');
-        assert.equal(files[2].path, 'tags/foo.hbs');
+        assert.equal(files[1].path, path.resolve('tags.hbs'));
+        assert.equal(files[2].path, path.resolve('tags/foo.hbs'));
         cb();
       });
 
@@ -105,7 +106,7 @@ describe('gulp-collection', function() {
       .on('end', function() {
         assert.equal(files.length, 2);
         assert.equal(files[0].path, 'one.hbs');
-        assert.equal(files[1].path, 'tags.hbs');
+        assert.equal(files[1].path, path.resolve('tags.hbs'));
         cb();
       });
 
@@ -130,7 +131,7 @@ describe('gulp-collection', function() {
       .on('end', function() {
         assert.equal(files.length, 2);
         assert.equal(files[0].path, 'one.hbs');
-        assert.equal(files[1].path, 'tags/foo.hbs');
+        assert.equal(files[1].path, path.resolve('tags/foo.hbs'));
         cb();
       });
 
