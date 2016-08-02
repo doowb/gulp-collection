@@ -1,8 +1,7 @@
 'use strict'
 
 var utils = require('./lib/utils');
-var vgroup = require('./lib/vinyl-group');
-var vcollection = require('./lib/vinyl-collection');
+var addGroup = require('./lib/add-group');
 
 module.exports = function(structure, options) {
   if (typeof structure === 'object') {
@@ -21,12 +20,12 @@ module.exports = function(structure, options) {
     files.push(file);
     cb(null, file);
   }, function(cb) {
-    var group = vgroup.groupBy(files, `data.${prop}`);
+    var group = utils.groupArray(files, `data.${prop}`);
     if (typeof options.groupFn === 'function') {
       options.groupFn(group);
     }
 
-    files = vcollection.createFiles(group, structure, options);
+    files = addGroup.createFiles(group, structure, options);
     files.forEach(function(file) {
       this.push(file);
     }, this);
