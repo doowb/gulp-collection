@@ -1,7 +1,7 @@
 {
   "name": "gulp-collection",
   "description": "Gulp plugin to group vinyl files into a collection and create new vinyl files using pagination and permalinks.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://github.com/doowb/gulp-collection",
   "author": "Brian Woodward (https://github.com)",
   "repository": "doowb/gulp-collection",
