@@ -34,12 +34,15 @@
     "vinyl": "^1.2.0"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-eslint": "^3.0.1",
     "gulp-extname": "^0.2.2",
     "gulp-format-md": "^0.1.9",
     "gulp-gray-matter": "^3.0.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-mocha": "^3.0.0",
     "handlebars": "^4.0.5",
-    "mocha": "^2.5.3",
+    "mocha": "^3.0.0",
     "vinyl-item": "^0.1.0"
   },
   "keywords": [
