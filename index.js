@@ -1,7 +1,6 @@
 'use strict'
 
 var utils = require('./lib/utils');
-var addGroup = require('./lib/add-group');
 
 module.exports = function(structure, options) {
   if (typeof structure === 'object') {
@@ -25,7 +24,7 @@ module.exports = function(structure, options) {
       options.groupFn(group);
     }
 
-    files = addGroup.createFiles(group, structure, options);
+    files = utils.addGroup(group, structure, options);
     files.forEach(function(file) {
       this.push(file);
     }, this);
